@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity
     private DataInputStream mDataInputStream;
     private DataOutputStream mDataOutputStream;
 
-    private int mPuerto=2020;
+    private int mPuertoClient=6000;
+    private int mPuertoServer=4000;
 
     //Hilo para escuchar los mensajes lleguen por el socket
     private GetMessagesThread mListeningThread;
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity
             try
             {
                 //Abrimos el socket
-                mServerSocket = new ServerSocket(mPuerto);
+                mServerSocket = new ServerSocket(mPuertoServer);
 
                 //Mostramos un mensaje para indicar que estamos esperando en la direccion ip y el puerto...
                 appendText("Creado el servidor\n Dirección: "+getIpAddress()+" Puerto: "+ mServerSocket.getLocalPort());
@@ -138,9 +139,9 @@ public class MainActivity extends AppCompatActivity
         {
             //TODO Connect to server
             try {
-                setText("Conectando con el servidor: " + mIp + ":" + mPuerto + "...\n\n");//Mostramos por la interfaz que nos hemos conectado al servidor} catch (IOException e) {
+                setText("Conectando con el servidor: " + mIp + ":" + mPuertoClient+ "...\n\n");//Mostramos por la interfaz que nos hemos conectado al servidor} catch (IOException e) {
 
-                mSocket = new Socket(mIp, mPuerto);//Creamos el socket
+                mSocket = new Socket(mIp, mPuertoClient);//Creamos el socket
 
                 try {
                     mDataInputStream = new DataInputStream(mSocket.getInputStream());
