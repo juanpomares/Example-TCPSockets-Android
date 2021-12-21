@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity
 {
     private TextView mTV;
     private Button mBtnClient, mBtnServer;
-    private EditText mIPServer;
+    private EditText mIPServer, mPort;
 
     private Socket mSocket;
     private ServerSocket mServerSocket;
@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity
 
     private int mPuertoClient=6000;
     private int mPuertoServer=4000;
+
 
     //Hilo para escuchar los mensajes lleguen por el socket
     //Thread used to read messages from socket
@@ -54,16 +55,23 @@ public class MainActivity extends AppCompatActivity
         mBtnClient =(Button)findViewById(R.id.btnClient);
         mBtnServer =(Button)findViewById(R.id.btnServer);
         mIPServer =(EditText) findViewById(R.id.etIPServer);
+        mPort =(EditText) findViewById(R.id.etPort);
 
         mTV =(TextView) findViewById(R.id.tvOutput);
     }
 
     public void startServer(View v)
     {
-        setInterfaceEnabled(false);
+        try {
+            mPuertoServer=Integer.parseInt(mPort.getText().toString());
+            setInterfaceEnabled(false);
 
-        setText("\n"+getString(R.string.startServer));
-        (mWaitingThread =new WaitingClientThread()).start();
+            setText("\n"+getString(R.string.startServer));
+            (mWaitingThread =new WaitingClientThread()).start();
+        }catch (Exception e)
+        {
+
+        }
     }
 
     private void setInterfaceEnabled(boolean value)
@@ -71,6 +79,7 @@ public class MainActivity extends AppCompatActivity
         mBtnClient.setEnabled(value);
         mBtnServer.setEnabled(value);
         mIPServer.setEnabled(value);
+        mPort.setEnabled(value);
     }
 
     public void startClient(View v)
@@ -80,12 +89,19 @@ public class MainActivity extends AppCompatActivity
             //Se comprueba que haya algo de texto
             //Check if there are some text
         {
-            setInterfaceEnabled(false);
 
-            (new ClientConnectToServer(TheIP)).start();
+            try {
+                mPuertoClient=Integer.parseInt(mPort.getText().toString());
+                setInterfaceEnabled(false);
 
-            setText("\n"+getString(R.string.startClient));
-            appendText("\n"+getString(R.string.clientTryingConnection)+TheIP);
+                (new ClientConnectToServer(TheIP)).start();
+
+                setText("\n"+getString(R.string.startClient));
+                appendText("\n"+getString(R.string.clientTryingConnection)+TheIP);
+            }catch (Exception e)
+            {
+
+            }
         }
     }
 
