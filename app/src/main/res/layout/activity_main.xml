@@ -13,17 +13,16 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/tvServidor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Servidor: " />
+            android:text="@string/server" />
 
         <Button
-            android:id="@+id/buttonServer"
+            android:id="@+id/btnServer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="startServer"
-            android:text="Iniciar"
+            android:text="@string/start"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </LinearLayout>
@@ -34,27 +33,26 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/tvCliente"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cliente: " />
+            android:text="@string/client" />
 
 
         <EditText
-            android:id="@+id/ipServer"
+            android:id="@+id/etIPServer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="Ip del servidor"
+            android:hint="@string/serverIP"
             android:inputType="textPersonName" />
 
         <Button
-            android:id="@+id/buttonCliente"
+            android:id="@+id/btnClient"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="startClient"
-            android:text="Iniciar"
+            android:text="@string/start"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </LinearLayout>
@@ -64,11 +62,11 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/tvSalida"
+            android:id="@+id/tvOutput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Bienvenido a la app de sockets. \nPrimero un móvil debe crear el servidor y luego el otro conectarse.\nAmbos móviles deben estar en la misma red" />
+            android:text="@string/welcomeMessage" />
 
 
     </ScrollView>

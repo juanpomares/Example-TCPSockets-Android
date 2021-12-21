@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">Example Sockets TCP</string>
+    <string name="server">Server:</string>
+    <string name="start">Start!</string>
+    <string name="client">Client:</string>
+    <string name="serverIP">Server IP</string>
+    <string name="welcomeMessage">Welcome to Sockets app. \nFirst of all, one device must creates the server and the other connects to it. \nBoth devices must be connected at the same net.</string>
+    <string name="startServer">Server starting...</string>
+    <string name="startClient">Client starting...</string>
+    <string name="clientTryingConnection">"Trying connect to server "</string>
+    <string name="waitingClient">Waiting client...</string>
+    <string name="serverCreated">Server created</string>
+    <string name="address">Address</string>
+    <string name="port">Port</string>
+    <string name="problem">Houston, we have a problem</string>
+    <string name="connectingServer">Connecting to server</string>
+    <string name="received">Received</string>
+    <string name="sended">Sended</string>
+
+    <string-array name="ServerMessages">
+        <item>Welcome user to my chat</item>
+        <item>¿How are you?</item>
+        <item>Goodbye, see you soon</item>
+    </string-array>
+
+
+    <string-array name="ClientMessages">
+        <item>Hello server</item>
+        <item>Very well, thanks</item>
+        <item>Bye :)</item>
+    </string-array>
 </resources>

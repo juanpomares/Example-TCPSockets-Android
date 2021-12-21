@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ejemplo Sockets TCP</string>
+    <string name="server">Servidor:</string>
+    <string name="start">Iniciar</string>
+    <string name="client">Cliente:</string>
+    <string name="serverIP">IP del servidor</string>
+    <string name="welcomeMessage">Bienvenido a la app de sockets.  \nPrimero un móvil debe crear el servidor y luego el otro conectarse. \nAmbos móviles deben estar en la misma red</string>
+    <string name="startServer">Lanzando servidor...</string>
+    <string name="startClient">Comenzamos cliente...</string>
+    <string name="clientTryingConnection">"Intentamos conectarnos a "</string>
+    <string name="waitingClient">Esperando cliente...</string>
+    <string name="serverCreated">Servidor creado</string>
+    <string name="address">Dirección</string>
+    <string name="port">Puerto</string>
+    <string name="problem">Ha habido un problema</string>
+    <string name="connectingServer">Conectando al servidor</string>
+    <string name="received">Recibido</string>
+    <string name="sended">Enviado</string>
+
+    <string-array name="ServerMessages">
+        <item>Bienvenido usuario a mi chat</item>
+        <item>¿Estás bien</item>
+        <item>Bueno, pues molt bé, pues adiós</item>
+    </string-array>
+
+    <string-array name="ClientMessages">
+        <item>Hola servidor</item>
+        <item>No mucho, pero no te voy a contar mi vida</item>
+        <item>Pues adiós :(</item>
+    </string-array>
+</resources>

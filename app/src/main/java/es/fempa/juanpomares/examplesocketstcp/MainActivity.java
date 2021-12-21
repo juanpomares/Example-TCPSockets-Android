@@ -23,12 +23,12 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity
 {
     private TextView mTV;
-    private Button mBtnCliente, mBtnServidor;
+    private Button mBtnClient, mBtnServer;
     private EditText mIPServer;
 
     private Socket mSocket;
     private ServerSocket mServerSocket;
-    private boolean mConectionEstablished;
+    private boolean mConnectionEstablished;
 
     private DataInputStream mDataInputStream;
     private DataOutputStream mDataOutputStream;
@@ -37,10 +37,12 @@ public class MainActivity extends AppCompatActivity
     private int mPuertoServer=4000;
 
     //Hilo para escuchar los mensajes lleguen por el socket
+    //Thread used to read messages from socket
     private GetMessagesThread mListeningThread;
 
 
-    /*Hilo donde el servidor estará esperando a un cliente*/
+    //Hilo donde el servidor estará esperando a un cliente
+    //Thread used by the server to wait a client
     private WaitingClientThread mWaitingThread;
 
     @Override
@@ -49,36 +51,41 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mBtnCliente =(Button)findViewById(R.id.buttonCliente);
-        mBtnServidor =(Button)findViewById(R.id.buttonServer);
-        mIPServer =(EditText) findViewById(R.id.ipServer);
+        mBtnClient =(Button)findViewById(R.id.btnClient);
+        mBtnServer =(Button)findViewById(R.id.btnServer);
+        mIPServer =(EditText) findViewById(R.id.etIPServer);
 
-        mTV =(TextView) findViewById(R.id.tvSalida);
+        mTV =(TextView) findViewById(R.id.tvOutput);
     }
 
     public void startServer(View v)
     {
-        mBtnCliente.setEnabled(false);
-        mBtnServidor.setEnabled(false);
-        mIPServer.setEnabled(false);
+        setInterfaceEnabled(false);
 
-        setText("\nComenzamos Servidor!");
+        setText("\n"+getString(R.string.startServer));
         (mWaitingThread =new WaitingClientThread()).start();
+    }
+
+    private void setInterfaceEnabled(boolean value)
+    {
+        mBtnClient.setEnabled(value);
+        mBtnServer.setEnabled(value);
+        mIPServer.setEnabled(value);
     }
 
     public void startClient(View v)
     {
         String TheIP= mIPServer.getText().toString();
-        if(TheIP.length()>5)//Se comprueba que haya algo de texto
+        if(TheIP.length()>5)
+            //Se comprueba que haya algo de texto
+            //Check if there are some text
         {
-            mBtnCliente.setEnabled(false);
-            mBtnServidor.setEnabled(false);
-            mIPServer.setEnabled(false);
+            setInterfaceEnabled(false);
 
             (new ClientConnectToServer(TheIP)).start();
 
-            setText("\nComenzamos Cliente!");
-            appendText("\nNos intentamos conectar al servidor: "+TheIP);
+            setText("\n"+getString(R.string.startClient));
+            appendText("\n"+getString(R.string.clientTryingConnection)+TheIP);
         }
     }
 
@@ -96,37 +103,46 @@ public class MainActivity extends AppCompatActivity
     {
         public void run()
         {
-            setText("Esperando Usuario...");
+            setText(getString(R.string.waitingClient));
             try
             {
                 //Abrimos el socket
+                //Start the Server
                 mServerSocket = new ServerSocket(mPuertoServer);
 
                 //Mostramos un mensaje para indicar que estamos esperando en la direccion ip y el puerto...
-                appendText("Creado el servidor\n Dirección: "+getIpAddress()+" Puerto: "+ mServerSocket.getLocalPort());
+                //Showing information message about IP addres and port
+                appendText(getString(R.string.serverCreated)+"\n"+
+                        getString(R.string.address)+getIpAddress()+" "+getString(R.string.port)+": "+ mServerSocket.getLocalPort());
 
-                //Creamos un socket que esta a la espera de una conexion de cliente
+                //Esperamos conexión de cliente
+                //Waiting client connection
                 mSocket = mServerSocket.accept();
 
                 //Una vez hay conexion con un cliente, creamos los streams de salida/entrada
-                try {
-                    mDataInputStream = new DataInputStream(mSocket.getInputStream());
-                    mDataOutputStream = new DataOutputStream(mSocket.getOutputStream());
-                }catch(Exception e){ e.printStackTrace();}
+                //Whe connection established, let's create the communication streams
 
-                mConectionEstablished =true;
+                mDataInputStream = new DataInputStream(mSocket.getInputStream());
+                mDataOutputStream = new DataOutputStream(mSocket.getOutputStream());
+
+
+                mConnectionEstablished =true;
 
                 //Iniciamos el hilo para la escucha y procesado de mensajes
+                //Creating listening message thread
                 (mListeningThread =new GetMessagesThread()).start();
 
                 //Enviamos mensajes desde el servidor.
-                (new EnvioMensajesServidor()).start();
+                //Creating sent messages thread
+                (new SendServerMessages()).start();
                 mWaitingThread =null;
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 e.printStackTrace();
-                appendText("Ha habido un problema: "+e.getMessage());
+                appendText(getString(R.string.problem)+": "+e.getMessage());
+
+                runOnUiThread(() -> setInterfaceEnabled(true));
             }
         }
     }
@@ -137,72 +153,71 @@ public class MainActivity extends AppCompatActivity
         public ClientConnectToServer(String ip){mIp=ip;}
         public void run()
         {
-            //TODO Connect to server
             try {
-                setText("Conectando con el servidor: " + mIp + ":" + mPuertoClient+ "...\n\n");//Mostramos por la interfaz que nos hemos conectado al servidor} catch (IOException e) {
+                //Mostramos por la interfaz que nos vamos a conectar al servidor
+                //Showing message informing connection is being created
+                setText(getString(R.string.connectingServer)+": " + mIp + ":" + mPuertoClient+ "...\n\n");
 
-                mSocket = new Socket(mIp, mPuertoClient);//Creamos el socket
+                //Creamos el socket
+                //Creating socket
+                mSocket = new Socket(mIp, mPuertoClient);
 
-                try {
-                    mDataInputStream = new DataInputStream(mSocket.getInputStream());
-                    mDataOutputStream = new DataOutputStream(mSocket.getOutputStream());
-                }catch(Exception e){ e.printStackTrace();}
+                mDataInputStream = new DataInputStream(mSocket.getInputStream());
+                mDataOutputStream = new DataOutputStream(mSocket.getOutputStream());
 
-                mConectionEstablished =true;
+
+                mConnectionEstablished =true;
                 //Iniciamos el hilo para la escucha y procesado de mensajes
+                //Starting listeninsg socket thread
                 (mListeningThread =new GetMessagesThread()).start();
 
-                new EnvioMensajesCliente().start();
+                new SendClientMessages().start();
 
-            } catch (Exception e) {
+            }catch (Exception e)
+            {
                 e.printStackTrace();
-                appendText("Error: " + e.getMessage());
+                appendText(getString(R.string.problem)+": "+e.getMessage());
+
+                runOnUiThread(() -> setInterfaceEnabled(true));
             }
+
         }
 
     }
 
-    private class EnvioMensajesServidor extends Thread
+    private class SendServerMessages extends Thread
     {
         public void run()
         {
-            String messages[]={"Bienvenido usuario a mi chat", "¿Estás bien?", "Bueno, pues molt bé, pues adiós"};
-            int sleeptime[]={1000, 2000, 2000};
-            sendVariousMessages(messages, sleeptime);
+            String[] messages=getResources().getStringArray(R.array.ServerMessages);
+            int[] sleepTime ={1000, 2000, 2000};
+            sendVariousMessages(messages, sleepTime);
             DisconnectSockets();
         }
     }
 
-    private class EnvioMensajesCliente extends Thread
+    private class SendClientMessages extends Thread
     {
         public void run()
         {
-            String messages[]={"Hola servidor", "No mucho, pero no te voy a contar mi vida", "Pues adiós :("};
-            int sleeptime[]={1000, 2000, 1000};
+            String[] messages=getResources().getStringArray(R.array.ClientMessages);
+            int[] sleepTime={1000, 2000, 1000};
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            sendVariousMessages(messages, sleeptime);
+            sendVariousMessages(messages, sleepTime);
             DisconnectSockets();
         }
     }
 
     private void DisconnectSockets()
     {
-        if(mConectionEstablished)
+        if(mConnectionEstablished)
         {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run()
-                {
-                    mBtnCliente.setEnabled(true);
-                    mBtnServidor.setEnabled(true);
-                    mIPServer.setEnabled(true);
-                }
-            });
-            mConectionEstablished = false;
+            runOnUiThread(() -> setInterfaceEnabled(true));
+            mConnectionEstablished = false;
 
             if (mListeningThread != null)
             {
@@ -269,17 +284,20 @@ public class MainActivity extends AppCompatActivity
         {
             try
             {
-                mDataOutputStream.writeUTF(msg);//Enviamos el mensaje
-                appendText("Enviado: "+msg);
+                //Sending the message
+                //Enviamos el mensaje
+                mDataOutputStream.writeUTF(msg);
+                appendText(getString(R.string.sended)+": "+msg);
             }catch (IOException e)
             {
                 e.printStackTrace();
-                appendText("¡Algo fue mal! " + e.toString() + "\n");
+                appendText(getString(R.string.problem)+": " + e.toString() + "\n");
             }
         }
     }
 
     //Obtenemos la IP de nuestro terminal
+    //Getting the device IP
     private String getIpAddress()
     {
         String ip = "";
@@ -296,7 +314,7 @@ public class MainActivity extends AppCompatActivity
 
                     if (inetAddress.isSiteLocalAddress())
                     {
-                        ip += "IP de Servidor: " + inetAddress.getHostAddress() + "\n";
+                        ip += getString(R.string.serverIP)+": " + inetAddress.getHostAddress() + "\n";
                     }
 
                 }
@@ -304,7 +322,7 @@ public class MainActivity extends AppCompatActivity
         } catch (SocketException e)
         {
             e.printStackTrace();
-            ip += "¡Algo fue mal! " + e.toString() + "\n";
+            ip += getString(R.string.problem)+" "+ e.toString() + "\n";
         }
 
         return ip;
@@ -322,9 +340,16 @@ public class MainActivity extends AppCompatActivity
             while(mIsExecuting)
             {
                 mLineRead ="";
-                mLineRead = getReadLine();//Obtenemos la cadena del buffer
-                if(mLineRead !="" && mLineRead.length()!=0)//Comprobamos que esa cadena tenga contenido
-                    appendText("Recibido: "+ mLineRead);//Procesamos la cadena recibida
+                //Obtenemos la cadena del buffer
+                //Get the string from socket stream
+                mLineRead = getReadLine();
+
+                //Comprobamos que esa cadena tenga contenido
+                //Check if the string has some content
+                if(mLineRead!=null && !mLineRead.equals("") && mLineRead.length()!=0)
+                    //Añadimos texto recibido a la interfaz
+                    //Recevied text added to TextView
+                    appendText(getString(R.string.received)+": "+ mLineRead);
             }
         }
 
@@ -338,7 +363,7 @@ public class MainActivity extends AppCompatActivity
 
             try {
                 cadena= mDataInputStream.readUTF();//Leemos del datainputStream una cadena UTF
-                Log.d("ObtenerCadena", "Cadena reibida: "+cadena);
+                Log.d("GetMessage", "Message received: "+cadena);
 
             }catch(Exception e)
             {
